@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr Luther's Team Assigner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .input-group textarea {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 200px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #ff6b9d;
+        }
+
+        .input-group small {
+            margin-top: 8px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .assign-btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .assign-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .assign-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .assign-btn:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-header h2 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-width: 120px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b9d;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .assignments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .team-assignment {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .team-assignment:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff6b9d;
+        }
+
+        .person-name {
+            background: #ff6b9d;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 3px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 20px auto 0;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        .shuffling-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .shuffling-text {
+            font-size: 1.5rem;
+            color: #ff6b9d;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .shuffle-display {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .shuffle-item {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            animation: shuffle 0.5s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        @keyframes shuffle {
+            0% { transform: translateY(-20px); opacity: 0; }
+            50% { transform: translateY(0); opacity: 1; transform: scale(1.05); }
+            100% { transform: translateY(0); opacity: 1; transform: scale(1); }
+        }
+
+        .duck-animation {
+            font-size: 2rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                gap: 15px;
+            }
+
+            .assignments-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦆 Mr Luther's Team Assigner 🦆</h1>
+            <p>Randomly assign Euro 2025 teams to students - let the ducks decide! 🦆</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="teams">Teams (one per line)</label>
+                    <textarea id="teams" placeholder="Enter team names here...">Switzerland
+Norway
+Iceland
+Finland
+Spain 
+Portugal
+Belgium
+Italy
+Germany
+Poland
+Denmark
+Sweden
+France
+England
+Wales
+Netherlands</textarea>
+                    <small>Enter each team name on a new line</small>
+                </div>
+
+                <div class="input-group">
+                    <label for="names">Students (one per line) 🦆</label>
+                    <textarea id="names" placeholder="Enter student names here...
+Example:
+Sally Smith
+Leah Williamson
+Beth Mead
+Lucy Bronze"></textarea>
+                    <small>Enter each student name on a new line</small>
+                </div>
+            </div>
+
+            <button class="assign-btn" onclick="assignTeams()" id="assignBtn">
+                🦆 Let the Ducks Decide! 🦆
+            </button>
+        </div>
+
+        <div class="shuffling-container" id="shuffling">
+            <div class="shuffling-text">
+                <span class="duck-animation">🦆</span> The ducks are deciding... <span class="duck-animation">🦆</span>
+                <br><small style="font-size: 1rem; font-weight: normal; color: #666;">⚽ Euro 2025 Football Tournament ⚽</small>
+            </div>
+            <div class="shuffle-display" id="shuffleDisplay"></div>
+        </div>
+
+        <div class="results-section" id="results">
+            <div class="results-header">
+                <h2>🦆 Team Assignments 🦆</h2>
+                <div class="stats" id="stats"></div>
+            </div>
+            <div id="error-container"></div>
+            <div class="assignments-grid" id="assignments"></div>
+            <button class="reset-btn" onclick="resetAssignments()">Reset & Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        function assignTeams() {
+            const teamsText = document.getElementById('teams').value.trim();
+            const namesText = document.getElementById('names').value.trim();
+            const errorContainer = document.getElementById('error-container');
+            const assignBtn = document.getElementById('assignBtn');
+            
+            // Clear previous errors and results
+            errorContainer.innerHTML = '';
+            document.getElementById('results').style.display = 'none';
+            
+            // Validate inputs
+            if (!teamsText || !namesText) {
+                showError('Please enter both teams and student names.');
+                return;
+            }
+            
+            // Parse inputs
+            const teams = teamsText.split('\n').filter(team => team.trim() !== '').map(team => team.trim());
+            const names = namesText.split('\n').filter(name => name.trim() !== '').map(name => name.trim());
+            
+            if (teams.length === 0) {
+                showError('Please enter at least one team.');
+                return;
+            }
+            
+            if (names.length === 0) {
+                showError('Please enter at least one student name.');
+                return;
+            }
+            
+            // Check for duplicate teams
+            const uniqueTeams = [...new Set(teams)];
+            if (uniqueTeams.length !== teams.length) {
+                showError('Duplicate team names found. Please ensure all team names are unique.');
+                return;
+            }
+            
+            // Check for duplicate names
+            const uniqueNames = [...new Set(names)];
+            if (uniqueNames.length !== names.length) {
+                showError('Duplicate student names found. Please ensure all student names are unique.');
+                return;
+            }
+            
+            // Disable button and start shuffling animation
+            assignBtn.disabled = true;
+            assignBtn.textContent = '🦆 Ducks are thinking... 🦆';
+            
+            startShufflingAnimation(teams, names, () => {
+                // This callback runs after the animation
+                performAssignment(teams, names);
+                assignBtn.disabled = false;
+                assignBtn.innerHTML = '🦆 Let the Ducks Decide! 🦆';
+            });
+        }
+        
+        function startShufflingAnimation(teams, names, callback) {
+            const shufflingContainer = document.getElementById('shuffling');
+            const shuffleDisplay = document.getElementById('shuffleDisplay');
+            
+            shufflingContainer.style.display = 'block';
+            shufflingContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            const allItems = [...teams, ...names];
+            let animationCount = 0;
+            const totalAnimations = 12; // Reduced from 20 to make it less overwhelming
+            const footballEmojis = ['⚽', '🏆', '🥅', '👟'];
+            
+            const shuffleInterval = setInterval(() => {
+                // Clear previous item
+                shuffleDisplay.innerHTML = '';
+                
+                // Show random item with football emoji
+                const randomItem = allItems[Math.floor(Math.random() * allItems.length)];
+                const randomFootballEmoji = footballEmojis[Math.floor(Math.random() * footballEmojis.length)];
+                const shuffleItem = document.createElement('div');
+                shuffleItem.className = 'shuffle-item';
+                shuffleItem.textContent = `${randomFootballEmoji} ${randomItem} ${randomFootballEmoji}`;
+                shuffleDisplay.appendChild(shuffleItem);
+                
+                animationCount++;
+                
+                if (animationCount >= totalAnimations) {
+                    clearInterval(shuffleInterval);
+                    
+                    // Final message
+                    shuffleDisplay.innerHTML = '<div class="shuffle-item">🦆 ⚽ Assignments Complete! ⚽ 🦆</div>';
+                    
+                    setTimeout(() => {
+                        shufflingContainer.style.display = 'none';
+                        callback();
+                    }, 1500);
+                }
+            }, 500); // Slowed down from 200ms to 500ms - much more readable
+        }
+        
+        function performAssignment(teams, names) {
+            // Shuffle both teams and names randomly for more randomness
+            const shuffledTeams = [...teams].sort(() => Math.random() - 0.5);
+            const shuffledNames = [...names].sort(() => Math.random() - 0.5);
+            
+            // Create assignments
+            const assignments = {};
+            shuffledTeams.forEach(team => {
+                assignments[team] = [];
+            });
+            
+            // Distribute names to teams randomly
+            shuffledNames.forEach((name, index) => {
+                const teamIndex = index % shuffledTeams.length;
+                assignments[shuffledTeams[teamIndex]].push(name);
+            });
+            
+            // Display results
+            displayResults(assignments, teams.length, names.length);
+        }
+        
+        function displayResults(assignments, teamCount, nameCount) {
+            const resultsSection = document.getElementById('results');
+            const statsContainer = document.getElementById('stats');
+            const assignmentsContainer = document.getElementById('assignments');
+            
+            // Calculate statistics
+            const maxAssignments = Math.ceil(nameCount / teamCount);
+            const minAssignments = Math.floor(nameCount / teamCount);
+            const teamsWithExtra = nameCount % teamCount;
+            
+            // Display statistics
+            statsContainer.innerHTML = `
+                <div class="stat">
+                    <div class="stat-number">${teamCount}</div>
+                    <div class="stat-label">Teams</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">${nameCount}</div>
+                    <div class="stat-label">Students</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">${minAssignments}${maxAssignments > minAssignments ? `-${maxAssignments}` : ''}</div>
+                    <div class="stat-label">Per Team</div>
+                </div>
+            `;
+            
+            // Display assignments
+            assignmentsContainer.innerHTML = '';
+            Object.entries(assignments).forEach(([team, assignedNames]) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'team-assignment';
+                
+                const teamNameDiv = document.createElement('div');
+                teamNameDiv.className = 'team-name';
+                teamNameDiv.textContent = team;
+                
+                const namesDiv = document.createElement('div');
+                assignedNames.forEach(name => {
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'person-name';
+                    nameSpan.textContent = name;
+                    namesDiv.appendChild(nameSpan);
+                });
+                
+                teamDiv.appendChild(teamNameDiv);
+                teamDiv.appendChild(namesDiv);
+                assignmentsContainer.appendChild(teamDiv);
+            });
+            
+            // Show results section
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `<div class="error">${message}</div>`;
+            
+            const resultsSection = document.getElementById('results');
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function resetAssignments() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('shuffling').style.display = 'none';
+            document.getElementById('teams').focus();
+        }
+    </script>
+</body>
+</html>
