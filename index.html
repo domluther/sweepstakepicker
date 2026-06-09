@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mr Luther's Team Assigner</title>
     <style>
+        img.emoji {
+            height: 1.2em;
+            width: 1.2em;
+            margin: 0 0.05em 0 0.05em;
+            vertical-align: -0.2em;
+            display: inline-block;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -396,7 +404,11 @@ Lucy Bronze"></textarea>
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js" crossorigin="anonymous"></script>
 <script>
+    function parseEmoji(el) {
+        if (typeof twemoji !== 'undefined') twemoji.parse(el);
+    }
     /* ── Toggle UI ── */
     function updateToggles() {
         const isRandom = document.getElementById('pick-toggle').checked;
@@ -475,6 +487,7 @@ Lucy Bronze"></textarea>
             el.className = 'shuffle-item';
             el.textContent = `${emoji} ${item} ${emoji}`;
             display.appendChild(el);
+                parseEmoji(el);
             count++;
 
             if (count >= total) {
@@ -595,6 +608,7 @@ Lucy Bronze"></textarea>
         });
 
         assignEl.appendChild(grid);
+        parseEmoji(resultsEl);
 
         resultsEl.style.display = 'block';
         resultsEl.scrollIntoView({ behavior: 'smooth' });
@@ -611,6 +625,10 @@ Lucy Bronze"></textarea>
         document.getElementById('shuffling').style.display = 'none';
         document.getElementById('names').focus();
     }
+
+    // Parse emojis in static page content on load
+    document.addEventListener('DOMContentLoaded', () => parseEmoji(document.body));
+
 </script>
 </body>
 </html>
